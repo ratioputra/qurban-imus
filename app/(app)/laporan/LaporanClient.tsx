@@ -269,7 +269,8 @@ export function LaporanClient({ transactions, inventory, totalIn, totalOut, tota
           {/* Jenis Daging */}
           <div className="space-y-1.5">
             <Label className="text-xs text-slate-500">Jenis Daging</Label>
-            <Select value={meatFilter} onValueChange={setMeatFilter}>
+            <Select value={meatFilter}onValueChange={(value) => setMeatFilter(value ?? '')}
+>
               <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
@@ -282,7 +283,8 @@ export function LaporanClient({ transactions, inventory, totalIn, totalOut, tota
           {/* Tipe Transaksi */}
           <div className="space-y-1.5">
             <Label className="text-xs text-slate-500">Tipe Transaksi</Label>
-            <Select value={tipeFilter} onValueChange={setTipeFilter}>
+            <Select value={tipeFilter}onValueChange={(value) => setTipeFilter(value ?? '')}
+>
               <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
@@ -295,7 +297,8 @@ export function LaporanClient({ transactions, inventory, totalIn, totalOut, tota
           {/* Kategori Penerima */}
           <div className="space-y-1.5">
             <Label className="text-xs text-slate-500">Kategori Penerima</Label>
-            <Select value={kategoriFilter} onValueChange={setKategoriFilter}>
+            <Select value={kategoriFilter}onValueChange={(value) => setKategoriFilter(value ?? '')}
+>
               <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>

@@ -214,7 +214,8 @@ export function PaketClient({ initialData }: { initialData: Paket[] }) {
               {/* Jenis Daging Utama */}
               <div className="space-y-2">
                 <Label htmlFor="pkg-meat">Jenis Daging Utama</Label>
-                <Select value={form.meat_type} onValueChange={(v) => setField("meat_type", v)}>
+                <Select value={form.meat_type}onValueChange={(v) => setField("meat_type", v ?? '')}
+>
                   <SelectTrigger id="pkg-meat">
                     <SelectValue placeholder="Pilih jenis daging..." />
                   </SelectTrigger>
