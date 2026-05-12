@@ -73,7 +73,7 @@ export function RiwayatDistribusi({ data }: { data: TransaksiOut[] }) {
 
         {/* Filter kategori */}
         <div className="w-full sm:w-48">
-          <Select value={filter} onValueChange={setFilter}>
+          <Select value={filter} onValueChange={(value) => setFilter(value ?? '')}>
             <SelectTrigger className="bg-white border-orange-200 focus:ring-orange-300">
               <SelectValue placeholder="Filter kategori" />
             </SelectTrigger>
