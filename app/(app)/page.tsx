@@ -15,18 +15,10 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { RealtimeRefresher } from "@/components/RealtimeRefresher";
+import { TimeAgo } from "@/components/TimeAgo";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-// ── Helper: format waktu relatif ──────────────────────────────────────────────
-function timeAgo(iso: string): string {
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (diff < 60) return `${diff} detik lalu`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
-  return `${Math.floor(diff / 86400)} hari lalu`;
-}
 
 // ── Helper: progress bar ──────────────────────────────────────────────────────
 function ProgressBar({ value, max, color = "bg-blue-500" }: { value: number; max: number; color?: string }) {
@@ -338,7 +330,7 @@ export default async function DashboardPage() {
                         {isIn ? "+" : "-"}{tx.amount} {satuan}
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        {tx.created_at ? timeAgo(tx.created_at) : "-"}
+                        {tx.created_at ? <TimeAgo iso={tx.created_at} /> : "-"}
                       </p>
                     </div>
                   </li>
