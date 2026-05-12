@@ -180,7 +180,7 @@ export default async function DashboardPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Total Terinput</p>
-            <h3 className="text-2xl font-bold text-slate-900">
+            <h3 className="text-2xl font-bold text-slate-900" suppressHydrationWarning>
               {totalInput.toLocaleString("id-ID")}
             </h3>
           </div>
@@ -192,7 +192,7 @@ export default async function DashboardPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Stok Saat Ini</p>
-            <h3 className="text-2xl font-bold text-slate-900">
+            <h3 className="text-2xl font-bold text-slate-900" suppressHydrationWarning>
               {currentTotalStock.toLocaleString("id-ID")}
             </h3>
           </div>
@@ -204,7 +204,7 @@ export default async function DashboardPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Total Terdistribusi</p>
-            <h3 className="text-2xl font-bold text-slate-900">
+            <h3 className="text-2xl font-bold text-slate-900" suppressHydrationWarning>
               {totalOutput.toLocaleString("id-ID")}
             </h3>
           </div>
@@ -225,11 +225,11 @@ export default async function DashboardPage() {
                 </div>
                 <p className="font-semibold text-slate-700">Mudhohi</p>
               </div>
-              <span className="text-sm font-medium text-slate-500">
+              <span className="text-sm font-medium text-slate-500" suppressHydrationWarning>
                 {mTotal === 0 ? "0%" : `${Math.round((mDone / mTotal) * 100)}%`}
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900 mt-3">
+            <p className="text-3xl font-bold text-slate-900 mt-3" suppressHydrationWarning>
               {mDone}
               <span className="text-lg font-normal text-slate-400">/{mTotal}</span>
             </p>
@@ -246,11 +246,11 @@ export default async function DashboardPage() {
                 </div>
                 <p className="font-semibold text-slate-700">Asatidz</p>
               </div>
-              <span className="text-sm font-medium text-slate-500">
+              <span className="text-sm font-medium text-slate-500" suppressHydrationWarning>
                 {aTotal === 0 ? "0%" : `${Math.min(100, Math.round((aDone / aTotal) * 100))}%`}
               </span>
             </div>
-            <p className="text-3xl font-bold text-slate-900 mt-3">
+            <p className="text-3xl font-bold text-slate-900 mt-3" suppressHydrationWarning>
               {aDone}
               <span className="text-lg font-normal text-slate-400">/{aTotal}</span>
             </p>
@@ -268,7 +268,7 @@ export default async function DashboardPage() {
                 <p className="font-semibold text-slate-700">Masyarakat & Lainnya</p>
               </div>
             </div>
-            <p className="text-3xl font-bold text-slate-900 mt-3">
+            <p className="text-3xl font-bold text-slate-900 mt-3" suppressHydrationWarning>
               {lTotal}
             </p>
             <p className="text-sm text-slate-500 mt-0.5">total transaksi distribusi</p>
@@ -364,7 +364,7 @@ export default async function DashboardPage() {
                       {isPcs ? "Hati + Sampil" : `Daging ${type}`}
                     </h3>
                   </div>
-                  <span className="text-2xl font-bold text-slate-900">
+                  <span className="text-2xl font-bold text-slate-900" suppressHydrationWarning>
                     {stats.stock.toLocaleString("id-ID")}
                     <span className="text-sm font-normal text-slate-400 ml-1">{mainUnit}</span>
                   </span>
@@ -382,14 +382,14 @@ export default async function DashboardPage() {
                   <div className="flex items-center gap-1.5 text-sm">
                     <ArrowDownToLine size={13} className="text-green-500" />
                     <span className="text-slate-500">Masuk:</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-green-600" suppressHydrationWarning>
                       {stats.in.toLocaleString("id-ID")}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm">
                     <ArrowUpFromLine size={13} className="text-red-500" />
                     <span className="text-slate-500">Keluar:</span>
-                    <span className="font-semibold text-red-500">
+                    <span className="font-semibold text-red-500" suppressHydrationWarning>
                       {stats.out.toLocaleString("id-ID")}
                     </span>
                   </div>
