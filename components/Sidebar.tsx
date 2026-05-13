@@ -93,7 +93,7 @@ export function Sidebar() {
 
       {/* Mobile Header & Hamburger Menu */}
       <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 text-white sticky top-0 z-20 w-full shadow-md">
-        <h1 className="text-xl font-bold text-blue-400">Qurban Imus</h1>
+        <h1 className="text-xl font-bold text-white">Qurban Imus</h1>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger>
             <Button variant="ghost" size="icon" className="text-white hover:bg-slate-800">
