@@ -2,17 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Factory, 
-  Truck, 
-  Users, 
-  PackageIcon, 
+import {
+  LayoutDashboard,
+  Factory,
+  Truck,
+  Users,
+  PackageIcon,
   FileText,
   Menu,
   LogOut,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,15 +59,17 @@ export function Sidebar() {
         {navItems.map((item) => {
           const Icon = item.icon;
           // Simple active state check
-          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href));
           return (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive 
-                  ? "bg-blue-600 text-white" 
+                isActive
+                  ? "bg-blue-600 text-white"
                   : "text-slate-300 hover:bg-slate-800 hover:text-blue-400"
               }`}
             >
@@ -87,7 +96,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 flex-col min-h-screen shrink-0 sticky top-0 bg-slate-900 z-20">
+      <aside className="hidden md:flex w-64 flex-col h-full shrink-0 bg-slate-900 z-20">
         <SidebarContent />
       </aside>
 
@@ -96,14 +105,23 @@ export function Sidebar() {
         <h1 className="text-xl font-bold text-white">Qurban Imus</h1>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-slate-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-slate-800"
+            >
               <Menu size={24} />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 bg-slate-900 border-r-slate-800 w-64">
+          <SheetContent
+            side="left"
+            className="p-0 bg-slate-900 border-r-slate-800 w-64"
+          >
             <SheetHeader className="sr-only">
               <SheetTitle>Menu Navigasi</SheetTitle>
-              <SheetDescription>Pilih menu navigasi aplikasi qurban</SheetDescription>
+              <SheetDescription>
+                Pilih menu navigasi aplikasi qurban
+              </SheetDescription>
             </SheetHeader>
             <SidebarContent />
           </SheetContent>
