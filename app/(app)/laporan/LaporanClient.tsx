@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { TxRow, InventoryRow } from "./actions";
+import type { TxRow, InventorySummaryRow } from "./actions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -28,6 +28,15 @@ function formatTanggal(iso: string) {
 
 function getSatuan(meatType: string) {
   return meatType === "Hati + Sampil" ? "Pcs" : "Kresek";
+}
+
+/** Jenis daging yang punya berat kg di view (bukan jeroan). */
+function showBeratKg(meatType: string) {
+  return meatType === "Sapi" || meatType === "Kambing";
+}
+
+function formatBeratKg(kg: number) {
+  return `${kg.toLocaleString("id-ID", { maximumFractionDigits: 2, minimumFractionDigits: 0 })} kg`;
 }
 
 function KategoriBadge({ type }: { type: string | null }) {
@@ -80,7 +89,7 @@ function exportCSV(rows: TxRow[]) {
 
 type Props = {
   transactions: TxRow[];
-  inventory: InventoryRow[];
+  inventorySummary: InventorySummaryRow[];
   totalIn: number;
   totalOut: number;
   totalStock: number;
@@ -90,7 +99,13 @@ const MEAT_OPTIONS = ["Semua", "Sapi", "Kambing", "Hati + Sampil"] as const;
 const TIPE_OPTIONS = ["Semua", "Masuk (IN)", "Keluar (OUT)"] as const;
 const KATEGORI_OPTIONS = ["Semua", "Mudhohi", "Asatidz", "Guru", "Panitia", "Masyarakat"] as const;
 
-export function LaporanClient({ transactions, inventory, totalIn, totalOut, totalStock }: Props) {
+export function LaporanClient({
+  transactions,
+  inventorySummary,
+  totalIn,
+  totalOut,
+  totalStock,
+}: Props) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo]     = useState("");
   const [meatFilter, setMeatFilter]         = useState("Semua");
@@ -176,7 +191,7 @@ export function LaporanClient({ transactions, inventory, totalIn, totalOut, tota
         </div>
       </div>
 
-      {/* ══ STOK PER JENIS ════════════════════════════════════════════════════ */}
+      {/* ══ STOK PER JENIS (view inventory_summary) ═════════════════════════════ */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
           <h2 className="font-semibold text-slate-800">Stok Saat Ini per Jenis Daging</h2>
@@ -186,27 +201,50 @@ export function LaporanClient({ transactions, inventory, totalIn, totalOut, tota
             <thead>
               <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
                 <th className="px-6 py-3 font-medium">Jenis Daging</th>
-                <th className="px-6 py-3 font-medium text-right">Sisa Stok</th>
+                <th className="px-6 py-3 font-medium text-right">Masuk (Produksi)</th>
+                <th className="px-6 py-3 font-medium text-right">Keluar (Distribusi)</th>
+                <th className="px-6 py-3 font-medium text-right">Stok Akhir (Sisa)</th>
                 <th className="px-6 py-3 font-medium text-right">Satuan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {inventory.length === 0 ? (
+              {inventorySummary.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-6 text-center text-slate-500">Belum ada data stok.</td>
+                  <td colSpan={5} className="px-6 py-6 text-center text-slate-500">
+                    Belum ada data stok (view inventory_summary kosong).
+                  </td>
                 </tr>
               ) : (
-                inventory.map((inv) => (
-                  <tr key={inv.meat_type} className="hover:bg-slate-50/50">
-                    <td className="px-6 py-3 font-medium text-slate-800">{inv.meat_type}</td>
-                    <td className="px-6 py-3 text-right font-bold text-blue-700">
-                      {inv.stock.toLocaleString("id-ID")}
-                    </td>
-                    <td className="px-6 py-3 text-right text-slate-500 text-sm">
-                      {getSatuan(inv.meat_type)}
-                    </td>
-                  </tr>
-                ))
+                inventorySummary.map((row) => {
+                  const satuan = getSatuan(row.meat_type);
+                  const tampilBerat =
+                    showBeratKg(row.meat_type) &&
+                    row.total_berat_kg !== null &&
+                    !Number.isNaN(row.total_berat_kg);
+                  const beratKg = row.total_berat_kg;
+                  return (
+                    <tr key={row.meat_type} className="hover:bg-slate-50/50">
+                      <td className="px-6 py-3 font-medium text-slate-800">{row.meat_type}</td>
+                      <td className="px-6 py-3 text-right text-green-700 font-semibold">
+                        {row.total_in.toLocaleString("id-ID")}
+                      </td>
+                      <td className="px-6 py-3 text-right text-red-600 font-semibold">
+                        {row.total_out.toLocaleString("id-ID")}
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <div className="font-bold text-blue-700">
+                          {row.current_stock.toLocaleString("id-ID")}
+                        </div>
+                        {tampilBerat && beratKg !== null && (
+                          <div className="text-xs text-slate-500 mt-0.5 font-normal">
+                            {formatBeratKg(beratKg)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-3 text-right text-slate-500 text-sm">{satuan}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

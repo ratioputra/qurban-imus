@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function LaporanPage() {
-  const { transactions, inventory, totalIn, totalOut, totalStock } =
+  const { transactions, inventorySummary, totalIn, totalOut, totalStock } =
     await getLaporanData();
 
   return (
@@ -28,7 +28,7 @@ export default async function LaporanPage() {
 
       <LaporanClient
         transactions={transactions}
-        inventory={inventory}
+        inventorySummary={inventorySummary}
         totalIn={totalIn}
         totalOut={totalOut}
         totalStock={totalStock}
