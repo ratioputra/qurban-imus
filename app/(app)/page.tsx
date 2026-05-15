@@ -7,6 +7,7 @@ import {
   Users,
   GraduationCap,
   HeartHandshake,
+  Ticket,
   Factory,
   Truck,
   UserPlus,
@@ -52,7 +53,8 @@ export default async function DashboardPage() {
     { count: mudhohiDone },
     { count: asatidzTotal },
     { count: asatidzDone },
-    { count: lainnyaCount },
+    { count: kuponCount },
+    { count: masyarakatCount },
   ] = await Promise.all([
     supabase.from("inventory").select("meat_type, stock"),
     supabase.from("transactions").select("meat_type, transaction_type, amount"),
@@ -78,12 +80,18 @@ export default async function DashboardPage() {
       .from("asatidz")
       .select("*", { count: "exact", head: true })
       .eq("status_distribusi", true),
-    // Transaksi OUT untuk Kupon & Masyarakat
+    // Transaksi OUT — Kupon
     supabase
       .from("transactions")
       .select("*", { count: "exact", head: true })
       .eq("transaction_type", "OUT")
-      .in("recipient_type", ["Kupon", "Masyarakat"]),
+      .eq("recipient_type", "Kupon"),
+    // Transaksi OUT — Masyarakat
+    supabase
+      .from("transactions")
+      .select("*", { count: "exact", head: true })
+      .eq("transaction_type", "OUT")
+      .eq("recipient_type", "Masyarakat"),
   ]);
 
   const inventory = inventoryData || [];
@@ -164,7 +172,8 @@ export default async function DashboardPage() {
   const mDone = mudhohiDone ?? 0;
   const aTotal = asatidzTotal ?? 0;
   const aDone = asatidzDone ?? 0;
-  const lTotal = lainnyaCount ?? 0;
+  const kuponTotal = kuponCount ?? 0;
+  const masyarakatTotal = masyarakatCount ?? 0;
 
   return (
     <div className="space-y-10">
@@ -316,7 +325,7 @@ export default async function DashboardPage() {
         <h2 className="text-xl font-bold text-slate-900 mb-4">
           Progres Distribusi Penerima
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Mudhohi */}
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
@@ -381,29 +390,51 @@ export default async function DashboardPage() {
             <ProgressBar value={aDone} max={aTotal} color="bg-blue-500" />
           </div>
 
-          {/* Lainnya */}
+          {/* Kupon */}
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
-                  <HeartHandshake size={18} />
+                <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                  <Ticket size={18} />
                 </div>
-                <p className="font-semibold text-slate-700">
-                  Kupon & Masyarakat
-                </p>
+                <p className="font-semibold text-slate-700">Kupon</p>
               </div>
             </div>
             <p
               className="text-3xl font-bold text-slate-900 mt-3"
               suppressHydrationWarning
             >
-              {lTotal}
+              {kuponTotal}
             </p>
             <p className="text-sm text-slate-500 mt-0.5">
               total transaksi distribusi
             </p>
             <div className="w-full bg-slate-100 rounded-full h-2 mt-3">
-              <div className="bg-orange-400 h-2 rounded-full w-full" />
+              <div className="bg-amber-400 h-2 rounded-full w-full" />
+            </div>
+          </div>
+
+          {/* Masyarakat */}
+          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-slate-100 text-slate-600 rounded-lg">
+                  <HeartHandshake size={18} />
+                </div>
+                <p className="font-semibold text-slate-700">Masyarakat</p>
+              </div>
+            </div>
+            <p
+              className="text-3xl font-bold text-slate-900 mt-3"
+              suppressHydrationWarning
+            >
+              {masyarakatTotal}
+            </p>
+            <p className="text-sm text-slate-500 mt-0.5">
+              total transaksi distribusi
+            </p>
+            <div className="w-full bg-slate-100 rounded-full h-2 mt-3">
+              <div className="bg-slate-500 h-2 rounded-full w-full" />
             </div>
           </div>
         </div>
