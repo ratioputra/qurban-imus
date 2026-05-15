@@ -78,12 +78,12 @@ export default async function DashboardPage() {
       .from("asatidz")
       .select("*", { count: "exact", head: true })
       .eq("status_distribusi", true),
-    // Transaksi OUT untuk Masyarakat / Guru / Panitia
+    // Transaksi OUT untuk Kupon & Masyarakat
     supabase
       .from("transactions")
       .select("*", { count: "exact", head: true })
       .eq("transaction_type", "OUT")
-      .in("recipient_type", ["Masyarakat", "Guru", "Panitia"]),
+      .in("recipient_type", ["Kupon", "Masyarakat"]),
   ]);
 
   const inventory = inventoryData || [];
@@ -389,7 +389,7 @@ export default async function DashboardPage() {
                   <HeartHandshake size={18} />
                 </div>
                 <p className="font-semibold text-slate-700">
-                  Masyarakat & Lainnya
+                  Kupon & Masyarakat
                 </p>
               </div>
             </div>

@@ -13,6 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { TxRow, InventorySummaryRow } from "./actions";
+import {
+  RECIPIENT_FILTER_OPTIONS,
+  recipientBadgeClass,
+} from "@/lib/recipient-types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -40,18 +44,11 @@ function formatBeratKg(kg: number) {
 }
 
 function KategoriBadge({ type }: { type: string | null }) {
-  const map: Record<string, string> = {
-    Mudhohi:    "bg-purple-100 text-purple-800 border-purple-200",
-    Asatidz:    "bg-blue-100   text-blue-800   border-blue-200",
-    Guru:       "bg-teal-100   text-teal-800   border-teal-200",
-    Panitia:    "bg-amber-100  text-amber-800  border-amber-200",
-    Masyarakat: "bg-slate-100  text-slate-700  border-slate-200",
-    Internal:   "bg-green-100  text-green-800  border-green-200",
-  };
   const label = type ?? "-";
-  const cls = map[label] ?? "bg-slate-100 text-slate-700 border-slate-200";
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${recipientBadgeClass(type)}`}
+    >
       {label}
     </span>
   );
@@ -97,7 +94,6 @@ type Props = {
 
 const MEAT_OPTIONS = ["Semua", "Sapi", "Kambing", "Hati + Sampil"] as const;
 const TIPE_OPTIONS = ["Semua", "Masuk (IN)", "Keluar (OUT)"] as const;
-const KATEGORI_OPTIONS = ["Semua", "Mudhohi", "Asatidz", "Guru", "Panitia", "Masyarakat"] as const;
 
 export function LaporanClient({
   transactions,
@@ -341,7 +337,7 @@ export function LaporanClient({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {KATEGORI_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                {RECIPIENT_FILTER_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

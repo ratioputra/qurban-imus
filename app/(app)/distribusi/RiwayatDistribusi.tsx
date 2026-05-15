@@ -8,6 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  RECIPIENT_FILTER_OPTIONS,
+  recipientBadgeClass,
+} from "@/lib/recipient-types";
 
 export type TransaksiOut = {
   id: number;
@@ -18,21 +22,12 @@ export type TransaksiOut = {
   amount: number;
 };
 
-const FILTER_OPTIONS = ["Semua", "Mudhohi", "Asatidz", "Guru", "Panitia", "Masyarakat"] as const;
-
-// Badge warna per kategori penerima
 function KategoriBadge({ type }: { type: string | null }) {
-  const styles: Record<string, string> = {
-    Mudhohi:    "bg-purple-100 text-purple-800 border-purple-200",
-    Asatidz:    "bg-blue-100 text-blue-800 border-blue-200",
-    Guru:       "bg-teal-100 text-teal-800 border-teal-200",
-    Panitia:    "bg-amber-100 text-amber-800 border-amber-200",
-    Masyarakat: "bg-slate-100 text-slate-700 border-slate-200",
-  };
   const label = type ?? "-";
-  const cls = styles[label] ?? "bg-slate-100 text-slate-700 border-slate-200";
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${recipientBadgeClass(type)}`}
+    >
       {label}
     </span>
   );
@@ -78,7 +73,7 @@ export function RiwayatDistribusi({ data }: { data: TransaksiOut[] }) {
               <SelectValue placeholder="Filter kategori" />
             </SelectTrigger>
             <SelectContent>
-              {FILTER_OPTIONS.map((opt) => (
+              {RECIPIENT_FILTER_OPTIONS.map((opt) => (
                 <SelectItem key={opt} value={opt}>{opt}</SelectItem>
               ))}
             </SelectContent>

@@ -28,12 +28,13 @@ import {
   getAsatidzList,
   type MudhohiJatah,
 } from "./actions";
+import {
+  RECIPIENT_TYPES,
+  MANUAL_NAME_RECIPIENTS,
+  type RecipientType,
+} from "@/lib/recipient-types";
 
-const RECIPIENT_TYPES = ["Mudhohi", "Asatidz", "Guru", "Panitia", "Masyarakat"] as const;
 const MEAT_TYPES = ["Sapi", "Kambing", "Hati + Sampil"] as const;
-const MANUAL_NAME_RECIPIENTS = ["Masyarakat", "Guru", "Panitia"] as const;
-
-type RecipientType = (typeof RECIPIENT_TYPES)[number];
 type MeatType = (typeof MEAT_TYPES)[number] | "";
 
 export function DistribusiForm() {
@@ -110,7 +111,9 @@ export function DistribusiForm() {
     let resolvedName: string | undefined;
     if (recipientType === "Asatidz") {
       resolvedName = asatidzList.find((a) => a.id === asatidzId)?.name;
-    } else if (MANUAL_NAME_RECIPIENTS.includes(recipientType as any)) {
+    } else if (
+      (MANUAL_NAME_RECIPIENTS as readonly string[]).includes(recipientType)
+    ) {
       resolvedName = recipientName.trim() || recipientType;
     }
 
@@ -276,7 +279,9 @@ export function DistribusiForm() {
           )}
 
           {/* Input Nama Manual */}
-          {MANUAL_NAME_RECIPIENTS.includes(recipientType as any) && (
+          {(MANUAL_NAME_RECIPIENTS as readonly string[]).includes(
+            recipientType,
+          ) && (
             <div className="space-y-2">
               <Label htmlFor="recipient-name">
                 Nama Penerima{" "}
