@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +24,31 @@ import {
 import { submitProduksi } from "./actions";
 import { Plus } from "lucide-react";
 
-export function ProduksiFormSheet() {
-  const [open, setOpen] = useState(false);
+type ProduksiFormSheetProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+  onSuccess?: () => void;
+};
+
+export function ProduksiFormSheet({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  showTrigger = true,
+  onSuccess,
+}: ProduksiFormSheetProps = {}) {
+  const router = useRouter();
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  const setOpen = (val: boolean) => {
+    if (isControlled) {
+      controlledOnOpenChange?.(val);
+    } else {
+      setInternalOpen(val);
+    }
+  };
   const [meatType, setMeatType] = useState<'Sapi' | 'Kambing' | 'Hati + Sampil' | ''>('');
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +80,8 @@ export function ProduksiFormSheet() {
       toast.success("Data produksi berhasil disimpan");
       setOpen(false);
       resetForm();
+      onSuccess?.();
+      router.refresh();
     } else {
       toast.error(res.error || "Gagal menyimpan data");
     }
@@ -68,14 +94,16 @@ export function ProduksiFormSheet() {
 
   return (
     <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) resetForm(); }}>
-      <DialogTrigger
-        render={
-          <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2">
-            <Plus size={18} />
-            Input Hasil Produksi
-          </Button>
-        }
-      />
+      {showTrigger && (
+        <DialogTrigger
+          render={
+            <Button className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2">
+              <Plus size={18} />
+              Input Hasil Produksi
+            </Button>
+          }
+        />
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Input Produksi Baru</DialogTitle>

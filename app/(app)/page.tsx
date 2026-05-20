@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Package,
   ArrowDownToLine,
@@ -8,15 +7,14 @@ import {
   GraduationCap,
   HeartHandshake,
   Ticket,
-  Factory,
-  Truck,
-  UserPlus,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { RealtimeRefresher } from "@/components/RealtimeRefresher";
 import { TimeAgo } from "@/components/TimeAgo";
+import { DashboardQuickActions } from "@/app/(app)/DashboardQuickActions";
+import { getPackages } from "@/app/(app)/mudhohi/actions";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -89,6 +87,7 @@ export default async function DashboardPage() {
     { count: asatidzDone },
     { count: kuponCount },
     { count: masyarakatCount },
+    packages,
   ] = await Promise.all([
     supabase.from("inventory").select("meat_type, stock"),
     supabase.from("transactions").select("meat_type, transaction_type, amount"),
@@ -126,6 +125,7 @@ export default async function DashboardPage() {
       .select("*", { count: "exact", head: true })
       .eq("transaction_type", "OUT")
       .eq("recipient_type", "Masyarakat"),
+    getPackages(),
   ]);
 
   const inventory = inventoryData || [];
@@ -221,46 +221,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <Link
-          href="/produksi"
-          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm transition-colors group"
-        >
-          <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-            <Factory size={24} />
-          </div>
-          <div>
-            <p className="font-semibold text-base sm:text-lg">Input Produksi</p>
-            <p className="text-green-100 text-sm">Catat daging masuk</p>
-          </div>
-        </Link>
-
-        <Link
-          href="/distribusi"
-          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-sm transition-colors group"
-        >
-          <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-            <Truck size={24} />
-          </div>
-          <div>
-            <p className="font-semibold text-base sm:text-lg">Distribusi Daging</p>
-            <p className="text-orange-100 text-sm">Catat daging keluar</p>
-          </div>
-        </Link>
-
-        <Link
-          href="/mudhohi"
-          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-colors group sm:col-span-2 lg:col-span-1"
-        >
-          <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
-            <UserPlus size={24} />
-          </div>
-          <div>
-            <p className="font-semibold text-base sm:text-lg">Tambah Mudhohi</p>
-            <p className="text-blue-100 text-sm">Kelola peserta qurban</p>
-          </div>
-        </Link>
-      </div>
+      <DashboardQuickActions packages={packages} />
 
       {/* ── Stats Cards Stok ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

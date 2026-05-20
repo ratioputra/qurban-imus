@@ -37,9 +37,31 @@ import {
 const MEAT_TYPES = ["Sapi", "Kambing", "Hati + Sampil"] as const;
 type MeatType = (typeof MEAT_TYPES)[number] | "";
 
-export function DistribusiForm() {
+type DistribusiFormProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+  onSuccess?: () => void;
+};
+
+export function DistribusiForm({
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  showTrigger = true,
+  onSuccess,
+}: DistribusiFormProps = {}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+
+  const setOpen = (val: boolean) => {
+    if (isControlled) {
+      controlledOnOpenChange?.(val);
+    } else {
+      setInternalOpen(val);
+    }
+  };
   const [recipientType, setRecipientType] = useState<RecipientType | "">("");
 
   const [mudhohiId, setMudhohiId] = useState("");
@@ -134,6 +156,7 @@ export function DistribusiForm() {
       toast.success("Distribusi berhasil diproses");
       setOpen(false);
       resetForm();
+      onSuccess?.();
       router.refresh();
     } else {
       toast.error(res.error || "Gagal memproses distribusi");
@@ -147,7 +170,10 @@ export function DistribusiForm() {
     setMudhohiJatah(null);
   };
 
-  const handleOpenChange = (val: boolean) => { setOpen(val); if (!val) resetForm(); };
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (!val) resetForm();
+  };
 
   const handleRecipientChange = (val: string) => {
     setRecipientType(val as RecipientType);
@@ -161,13 +187,15 @@ export function DistribusiForm() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-            Input Distribusi
-          </Button>
-        }
-      />
+      {showTrigger && (
+        <DialogTrigger
+          render={
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+              Input Distribusi
+            </Button>
+          }
+        />
+      )}
 
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
