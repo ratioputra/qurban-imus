@@ -225,7 +225,7 @@ export function LaporanClient({
                 <th className="px-6 py-3 font-medium text-right">Masuk (Produksi)</th>
                 <th className="px-6 py-3 font-medium text-right">Keluar (Distribusi)</th>
                 <th className="px-6 py-3 font-medium text-right">Stok Akhir (Sisa)</th>
-                <th className="px-6 py-3 font-medium text-right">Satuan</th>
+                {/* <th className="px-6 py-3 font-medium text-right">Satuan</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -265,7 +265,7 @@ export function LaporanClient({
                           mainClassName="text-blue-700 font-semibold"
                         />
                       </td>
-                      <td className="px-6 py-3 text-right text-slate-500 text-sm">{satuan}</td>
+                      {/* <td className="px-6 py-3 text-right text-slate-500 text-sm">{satuan}</td> */}
                     </tr>
                   );
                 })

@@ -1,67 +1,86 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-const supabase = createClient();
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, 
-  DialogTrigger, DialogDescription 
-} from '@/components/ui/dialog'
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function ResetDatabase() {
-  const [confirmText, setConfirmText] = useState('')
-  const [loading, setLoading] = useState(false)
-  const targetPhrase = 'hapus seluruh data'
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleReset = async () => {
-    if (confirmText !== targetPhrase) return
-    
-    setLoading(true)
-    try {
-      // Menghapus data dari tabel-tabel utama
-      // Urutan penting jika ada Foreign Key constraint
-      const tables = ['produksi', 'distribusi', 'asatidz', 'mudhohi']
-      
-      for (const table of tables) {
-        await supabase.from(table).delete().neq('id', 0) // Menghapus semua baris
-      }
-      
-      alert('Data berhasil direset!')
-      window.location.reload()
-    } catch (error) {
-      alert('Gagal mereset data')
-    } finally {
-      setLoading(false)
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.rpc("reset_all_data");
+    setLoading(false);
+
+    if (error) {
+      toast.error(error.message || "Gagal menghapus data");
+      return;
     }
-  }
+
+    toast.success("Seluruh data berhasil dibersihkan!");
+    setOpen(false);
+    router.refresh();
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Button variant="destructive">Reset Database</Button>
-      </DialogTrigger>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={(val) => !loading && setOpen(val)}>
+      <DialogTrigger
+        render={
+          <Button variant="destructive" type="button">
+            Reset Semua Data
+          </Button>
+        }
+      />
+      <DialogContent className="sm:max-w-md" showCloseButton={!loading}>
         <DialogHeader>
-          <DialogTitle>Apakah Anda yakin?</DialogTitle>
-          <DialogDescription>
-            Tindakan ini tidak bisa dibatalkan. Ketik <strong>{targetPhrase}</strong> di bawah untuk mengaktifkan tombol hapus.
-          </DialogDescription>
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-full bg-red-50 text-red-600 shrink-0">
+              <AlertTriangle size={20} />
+            </div>
+            <div className="space-y-1">
+              <DialogTitle>Hapus Seluruh Data Qurban?</DialogTitle>
+              <DialogDescription>
+                Apakah Anda yakin ingin menghapus seluruh data transaksi,
+                mudhohi, dan asatidz? Aksi ini tidak dapat dibatalkan.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
-        <Input 
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          placeholder={`Ketik: ${targetPhrase}`}
-        />
-        <Button 
-          variant="destructive"
-          disabled={confirmText !== targetPhrase || loading}
-          onClick={handleReset}
-        >
-          {loading ? 'Menghapus...' : 'Hapus Seluruh Data'}
-        </Button>
+
+        <DialogFooter className="mt-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={loading}
+            onClick={() => setOpen(false)}
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={loading}
+            onClick={handleReset}
+          >
+            {loading ? "Menghapus..." : "Ya, Hapus Semua Data"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

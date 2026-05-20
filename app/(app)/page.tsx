@@ -15,6 +15,7 @@ import { RealtimeRefresher } from "@/components/RealtimeRefresher";
 import { TimeAgo } from "@/components/TimeAgo";
 import { DashboardQuickActions } from "@/app/(app)/DashboardQuickActions";
 import { getPackages } from "@/app/(app)/mudhohi/actions";
+import { ResetDatabase } from "@/components/ResetDatabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -537,6 +538,18 @@ export default async function DashboardPage() {
           })}
         </div>
       </div>
+
+      {/* ── Pengaturan / Zona Bahaya ── */}
+      <section className="rounded-xl border border-red-200 bg-red-50/40 p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Pengaturan</h2>
+        <p className="text-sm text-slate-600 mt-1 max-w-2xl">
+          Reset seluruh data qurban (transaksi, mudhohi, asatidz, dan stok).
+          Gunakan hanya saat memulai periode qurban baru.
+        </p>
+        <div className="mt-4">
+          <ResetDatabase />
+        </div>
+      </section>
     </div>
   );
 }
