@@ -101,7 +101,7 @@ export function Sidebar() {
       </aside>
 
       {/* Mobile Header & Hamburger Menu */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 text-white sticky top-0 z-20 w-full shadow-md">
+      <div className="md:hidden flex items-center justify-between p-4 bg-slate-900 text-white shrink-0 w-full shadow-md z-20">
         <h1 className="text-xl font-bold text-white">Qurban Imus</h1>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger>

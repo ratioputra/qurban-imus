@@ -42,6 +42,40 @@ function ProgressBar({
   );
 }
 
+function StockAmounts({
+  daging,
+  jeroan,
+  beratKg,
+}: {
+  daging: number;
+  jeroan: number;
+  beratKg: number;
+}) {
+  return (
+    <>
+      <div className="mt-1 space-y-0.5" suppressHydrationWarning>
+        <p className="text-lg sm:text-2xl font-bold text-slate-900">
+          {daging.toLocaleString("id-ID")}
+          <span className="text-sm font-normal text-muted-foreground">
+            {" "}
+            Daging
+          </span>
+        </p>
+        <p className="text-lg sm:text-2xl font-bold text-slate-900">
+          {jeroan.toLocaleString("id-ID")}
+          <span className="text-sm font-normal text-muted-foreground">
+            {" "}
+            Hati + Sampil
+          </span>
+        </p>
+      </div>
+      <p className="text-sm text-slate-400 mt-1" suppressHydrationWarning>
+        {beratKg.toLocaleString("id-ID")} kg
+      </p>
+    </>
+  );
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   // ── Fetch semua data secara paralel ──────────────────────────────────────────
@@ -176,158 +210,116 @@ export default async function DashboardPage() {
   const masyarakatTotal = masyarakatCount ?? 0;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-8 md:space-y-10">
       <RealtimeRefresher />
       {/* ── Judul ── */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 mt-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Dashboard</h1>
+        <p className="text-sm sm:text-base text-slate-500 mt-1 sm:mt-2">
           Ringkasan operasional dan stok daging qurban secara real-time.
         </p>
       </div>
 
       {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Link
           href="/produksi"
-          className="flex items-center gap-4 p-5 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm transition-colors group"
+          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-sm transition-colors group"
         >
           <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
             <Factory size={24} />
           </div>
           <div>
-            <p className="font-semibold text-lg">Input Produksi</p>
+            <p className="font-semibold text-base sm:text-lg">Input Produksi</p>
             <p className="text-green-100 text-sm">Catat daging masuk</p>
           </div>
         </Link>
 
         <Link
           href="/distribusi"
-          className="flex items-center gap-4 p-5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-sm transition-colors group"
+          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-sm transition-colors group"
         >
           <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
             <Truck size={24} />
           </div>
           <div>
-            <p className="font-semibold text-lg">Distribusi Daging</p>
+            <p className="font-semibold text-base sm:text-lg">Distribusi Daging</p>
             <p className="text-orange-100 text-sm">Catat daging keluar</p>
           </div>
         </Link>
 
         <Link
           href="/mudhohi"
-          className="flex items-center gap-4 p-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-colors group"
+          className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-colors group sm:col-span-2 lg:col-span-1"
         >
           <div className="p-3 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
             <UserPlus size={24} />
           </div>
           <div>
-            <p className="font-semibold text-lg">Tambah Mudhohi</p>
+            <p className="font-semibold text-base sm:text-lg">Tambah Mudhohi</p>
             <p className="text-blue-100 text-sm">Kelola peserta qurban</p>
           </div>
         </Link>
       </div>
 
       {/* ── Stats Cards Stok ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Card 1 — Total Terinput */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-green-50 text-green-600 rounded-full shrink-0">
-            <ArrowDownToLine size={28} />
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <div className="p-3 sm:p-4 bg-green-50 text-green-600 rounded-full shrink-0">
+            <ArrowDownToLine className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-slate-500">Total Terinput</p>
-            <p
-              className="text-2xl font-bold text-slate-900"
-              suppressHydrationWarning
-            >
-              {inputDaging.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Daging /{" "}
-              </span>{" "}
-              {inputJeroan.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Hati + Sampil
-              </span>
-            </p>
-            <p
-              className="text-sm text-slate-400 mt-0.5"
-              suppressHydrationWarning
-            >
-              {inputBeratKg.toLocaleString("id-ID")} kg
-            </p>
+            <StockAmounts
+              daging={inputDaging}
+              jeroan={inputJeroan}
+              beratKg={inputBeratKg}
+            />
           </div>
         </div>
 
         {/* Card 2 — Stok Saat Ini */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-blue-50 text-blue-600 rounded-full shrink-0">
-            <Boxes size={28} />
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <div className="p-3 sm:p-4 bg-blue-50 text-blue-600 rounded-full shrink-0">
+            <Boxes className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-slate-500">Stok Saat Ini</p>
-            <p
-              className="text-2xl font-bold text-slate-900"
-              suppressHydrationWarning
-            >
-              {stockDaging.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Daging /{" "}
-              </span>{" "}
-              {stockJeroan.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Hati + Sampil
-              </span>
-            </p>
-            <p
-              className="text-sm text-slate-400 mt-0.5"
-              suppressHydrationWarning
-            >
-              {stockBeratKg.toLocaleString("id-ID")} kg
-            </p>
+            <StockAmounts
+              daging={stockDaging}
+              jeroan={stockJeroan}
+              beratKg={stockBeratKg}
+            />
           </div>
         </div>
 
         {/* Card 3 — Total Terdistribusi */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-          <div className="p-4 bg-red-50 text-red-600 rounded-full shrink-0">
-            <ArrowUpFromLine size={28} />
+        <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 sm:col-span-2 lg:col-span-1">
+          <div className="p-3 sm:p-4 bg-red-50 text-red-600 rounded-full shrink-0">
+            <ArrowUpFromLine className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-slate-500">
               Total Terdistribusi
             </p>
-            <p
-              className="text-2xl font-bold text-slate-900"
-              suppressHydrationWarning
-            >
-              {outputDaging.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Daging /{" "}
-              </span>{" "}
-              {outputJeroan.toLocaleString("id-ID")}{" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                Hati + Sampil
-              </span>
-            </p>
-            <p
-              className="text-sm text-slate-400 mt-0.5"
-              suppressHydrationWarning
-            >
-              {outputBeratKg.toLocaleString("id-ID")} kg
-            </p>
+            <StockAmounts
+              daging={outputDaging}
+              jeroan={outputJeroan}
+              beratKg={outputBeratKg}
+            />
           </div>
         </div>
       </div>
 
       {/* ── Progres Distribusi Penerima ── */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-4">
+        <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-3 sm:mb-4">
           Progres Distribusi Penerima
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Mudhohi */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
@@ -358,7 +350,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Asatidz */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
@@ -391,7 +383,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Kupon */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
@@ -415,7 +407,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Masyarakat */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-slate-100 text-slate-600 rounded-lg">
@@ -444,8 +436,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Aktivitas Terkini */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
-            <h2 className="text-lg font-semibold text-slate-800">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-800">
               Aktivitas Terkini
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">
@@ -454,7 +446,7 @@ export default async function DashboardPage() {
           </div>
           <ul className="divide-y divide-slate-100">
             {recentTx.length === 0 ? (
-              <li className="px-6 py-8 text-center text-slate-500 text-sm">
+              <li className="px-4 sm:px-6 py-8 text-center text-slate-500 text-sm">
                 Belum ada aktivitas.
               </li>
             ) : (
@@ -467,7 +459,7 @@ export default async function DashboardPage() {
                   tx.meat_type === "Hati + Sampil" ? "Pcs" : "Kresek";
 
                 return (
-                  <li key={tx.id} className="px-6 py-4 flex items-center gap-4">
+                  <li key={tx.id} className="px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-4">
                     {/* Icon */}
                     <div
                       className={`p-2 rounded-full flex-shrink-0 ${
@@ -514,7 +506,7 @@ export default async function DashboardPage() {
 
         {/* Rincian Stok per Jenis Daging */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900">
             Rincian Stok per Jenis Daging
           </h2>
           {meatTypes.map((type) => {
@@ -527,19 +519,19 @@ export default async function DashboardPage() {
             return (
               <div
                 key={type}
-                className="bg-white rounded-xl shadow-sm border border-slate-200 p-5"
+                className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
                       <Package size={20} />
                     </div>
-                    <h3 className="font-semibold text-slate-800">
+                    <h3 className="font-semibold text-slate-800 truncate">
                       {isPcs ? "Hati + Sampil" : `Daging ${type}`}
                     </h3>
                   </div>
                   <span
-                    className="text-2xl font-bold text-slate-900"
+                    className="text-xl sm:text-2xl font-bold text-slate-900 shrink-0"
                     suppressHydrationWarning
                   >
                     {stats.stock.toLocaleString("id-ID")}
