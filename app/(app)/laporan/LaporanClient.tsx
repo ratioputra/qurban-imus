@@ -34,13 +34,38 @@ function getSatuan(meatType: string) {
   return meatType === "Hati + Sampil" ? "Pcs" : "Kresek";
 }
 
-/** Jenis daging yang punya berat kg di view (bukan jeroan). */
-function showBeratKg(meatType: string) {
-  return meatType === "Sapi" || meatType === "Kambing";
+function getSatuanLabel(meatType: string) {
+  return meatType === "Hati + Sampil" ? "pcs" : "kresek";
 }
 
-function formatBeratKg(kg: number) {
-  return `${kg.toLocaleString("id-ID", { maximumFractionDigits: 2, minimumFractionDigits: 0 })} kg`;
+/** Jumlah unit (kresek/pcs) + berat kg terpisah secara visual. */
+function JumlahBeratCell({
+  amount,
+  beratKg,
+  meatType,
+  mainClassName = "text-slate-900 font-medium",
+}: {
+  amount: number;
+  beratKg: number | null;
+  meatType: string;
+  mainClassName?: string;
+}) {
+  return (
+    <div className="flex flex-col items-end gap-0.5">
+      <span className={mainClassName}>
+        {amount.toLocaleString("id-ID")} {getSatuanLabel(meatType)}
+      </span>
+      {beratKg !== null && (
+        <span className="text-xs text-slate-500 font-normal">
+          {beratKg.toLocaleString("id-ID", {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 0,
+          })}{" "}
+          kg
+        </span>
+      )}
+    </div>
+  );
 }
 
 function KategoriBadge({ type }: { type: string | null }) {
@@ -213,29 +238,32 @@ export function LaporanClient({
               ) : (
                 inventorySummary.map((row) => {
                   const satuan = getSatuan(row.meat_type);
-                  const tampilBerat =
-                    showBeratKg(row.meat_type) &&
-                    row.total_berat_kg !== null &&
-                    !Number.isNaN(row.total_berat_kg);
-                  const beratKg = row.total_berat_kg;
                   return (
                     <tr key={row.meat_type} className="hover:bg-slate-50/50">
                       <td className="px-6 py-3 font-medium text-slate-800">{row.meat_type}</td>
-                      <td className="px-6 py-3 text-right text-green-700 font-semibold">
-                        {row.total_in.toLocaleString("id-ID")}
-                      </td>
-                      <td className="px-6 py-3 text-right text-red-600 font-semibold">
-                        {row.total_out.toLocaleString("id-ID")}
+                      <td className="px-6 py-3 text-right">
+                        <JumlahBeratCell
+                          amount={row.total_in}
+                          beratKg={row.total_in_berat_kg}
+                          meatType={row.meat_type}
+                          mainClassName="text-green-700 font-medium"
+                        />
                       </td>
                       <td className="px-6 py-3 text-right">
-                        <div className="font-bold text-blue-700">
-                          {row.current_stock.toLocaleString("id-ID")}
-                        </div>
-                        {tampilBerat && beratKg !== null && (
-                          <div className="text-xs text-slate-500 mt-0.5 font-normal">
-                            {formatBeratKg(beratKg)}
-                          </div>
-                        )}
+                        <JumlahBeratCell
+                          amount={row.total_out}
+                          beratKg={row.total_out_berat_kg}
+                          meatType={row.meat_type}
+                          mainClassName="text-red-600 font-medium"
+                        />
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <JumlahBeratCell
+                          amount={row.current_stock}
+                          beratKg={row.total_berat_kg}
+                          meatType={row.meat_type}
+                          mainClassName="text-blue-700 font-semibold"
+                        />
                       </td>
                       <td className="px-6 py-3 text-right text-slate-500 text-sm">{satuan}</td>
                     </tr>

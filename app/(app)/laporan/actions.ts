@@ -18,8 +18,16 @@ export type InventorySummaryRow = {
   total_in: number;
   total_out: number;
   current_stock: number;
+  total_in_berat_kg: number | null;
+  total_out_berat_kg: number | null;
   total_berat_kg: number | null;
 };
+
+function parseBeratKg(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isNaN(n) ? null : n;
+}
 
 export type LaporanData = {
   transactions: TxRow[];
@@ -41,7 +49,9 @@ export async function getLaporanData(): Promise<LaporanData> {
       .order("created_at", { ascending: false }),
     supabase
       .from("inventory_summary")
-      .select("meat_type, total_in, total_out, current_stock, total_berat_kg")
+      .select(
+        "meat_type, total_in, total_out, current_stock, total_in_berat_kg, total_out_berat_kg, total_berat_kg",
+      )
       .order("meat_type"),
   ]);
 
@@ -53,10 +63,9 @@ export async function getLaporanData(): Promise<LaporanData> {
     total_in: Number(row.total_in) || 0,
     total_out: Number(row.total_out) || 0,
     current_stock: Number(row.current_stock) || 0,
-    total_berat_kg:
-      row.total_berat_kg === null || row.total_berat_kg === undefined
-        ? null
-        : Number(row.total_berat_kg),
+    total_in_berat_kg: parseBeratKg(row.total_in_berat_kg),
+    total_out_berat_kg: parseBeratKg(row.total_out_berat_kg),
+    total_berat_kg: parseBeratKg(row.total_berat_kg),
   }));
 
   let totalIn = 0;
