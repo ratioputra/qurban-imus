@@ -41,6 +41,25 @@ function ProgressBar({
   );
 }
 
+function safeNum(value: unknown): number {
+  const n = Number(value);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function parseBeratKg(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isNaN(n) ? null : n;
+}
+
+function sumBeratKg(
+  current: number | null,
+  add: number | null,
+): number | null {
+  if (add === null) return current;
+  return (current ?? 0) + add;
+}
+
 function StockAmounts({
   daging,
   jeroan,
@@ -48,7 +67,7 @@ function StockAmounts({
 }: {
   daging: number;
   jeroan: number;
-  beratKg: number;
+  beratKg: number | null;
 }) {
   return (
     <>
@@ -68,9 +87,18 @@ function StockAmounts({
           </span>
         </p>
       </div>
-      <p className="text-sm text-slate-400 mt-1" suppressHydrationWarning>
-        {beratKg.toLocaleString("id-ID")} kg
-      </p>
+      {beratKg !== null && (
+        <p
+          className="text-xs text-slate-500 font-normal mt-1"
+          suppressHydrationWarning
+        >
+          {beratKg.toLocaleString("id-ID", {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 0,
+          })}{" "}
+          kg
+        </p>
+      )}
     </>
   );
 }
@@ -79,8 +107,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   // ── Fetch semua data secara paralel ──────────────────────────────────────────
   const [
-    { data: inventoryData },
-    { data: txData },
+    { data: summaryData },
     { data: recentTxData },
     { count: mudhohiTotal },
     { count: mudhohiDone },
@@ -90,9 +117,12 @@ export default async function DashboardPage() {
     { count: masyarakatCount },
     packages,
   ] = await Promise.all([
-    supabase.from("inventory").select("meat_type, stock"),
-    supabase.from("transactions").select("meat_type, transaction_type, amount"),
-    // 5 transaksi terbaru (IN + OUT)
+    supabase
+      .from("inventory_summary")
+      .select(
+        "meat_type, total_in, total_out, current_stock, total_in_berat_kg, total_out_berat_kg, total_berat_kg",
+      )
+      .order("meat_type"),
     supabase
       .from("transactions")
       .select(
@@ -129,78 +159,79 @@ export default async function DashboardPage() {
     getPackages(),
   ]);
 
-  const inventory = inventoryData || [];
-  const transactions = txData || [];
   const recentTx = recentTxData || [];
 
   // ── Konstanta kategori ────────────────────────────────────────────────────
   const DAGING_TYPES = ["Sapi", "Kambing"];
-  const BERAT_PER_KRESEK = 0.5; // kg per kresek
 
-  // ── Agregat dari tabel transactions ──────────────────────────────────────
-  // Input (IN)
-  let inputDaging = 0; // kresek Sapi + Kambing
-  let inputJeroan = 0; // pcs Hati + Sampil
+  const meatStats: Record<string, { in: number; out: number; stock: number }> = {
+    Sapi: { in: 0, out: 0, stock: 0 },
+    Kambing: { in: 0, out: 0, stock: 0 },
+    "Hati + Sampil": { in: 0, out: 0, stock: 0 },
+  };
 
-  // Output / distribusi (OUT)
+  let inputDaging = 0;
+  let inputJeroan = 0;
   let outputDaging = 0;
   let outputJeroan = 0;
+  let stockDaging = 0;
+  let stockJeroan = 0;
+  let inputBeratKg: number | null = null;
+  let outputBeratKg: number | null = null;
+  let stockBeratKg: number | null = null;
 
-  // Untuk Rincian Stok per Jenis Daging (tetap dipakai di bawah)
-  const meatStats: Record<string, { in: number; out: number; stock: number }> =
-    {
-      Sapi: { in: 0, out: 0, stock: 0 },
-      Kambing: { in: 0, out: 0, stock: 0 },
-      "Hati + Sampil": { in: 0, out: 0, stock: 0 },
-    };
-
-  transactions.forEach(
-    (tx: { meat_type: string; transaction_type: string; amount: number }) => {
-      const amt = tx.amount || 0;
-      const isDaging = DAGING_TYPES.includes(tx.meat_type);
-      const isJeroan = tx.meat_type === "Hati + Sampil"; // Tambahkan filter spesifik ini
-
-      if (tx.transaction_type === "IN") {
-        if (isDaging) inputDaging += amt;
-        else if (isJeroan) inputJeroan += amt; // Lebih aman daripada sekadar 'else'
-
-        if (meatStats[tx.meat_type]) meatStats[tx.meat_type].in += amt;
-      } else if (tx.transaction_type === "OUT") {
-        if (isDaging) {
-          outputDaging += amt;
-        } else if (isJeroan) {
-          // SEBELUMNYA: hanya else, sehingga OUT apapun masuk sini
-          // SEKARANG: Hanya OUT yang meat_type-nya "Hati + Sampil" yang masuk
-          outputJeroan += amt;
-        }
-
-        if (meatStats[tx.meat_type]) meatStats[tx.meat_type].out += amt;
-      }
-    },
+  // ── Agregat dari view inventory_summary ───────────────────────────────────
+  const inventorySummary = (summaryData ?? []).map(
+    (row: {
+      meat_type: string;
+      total_in: unknown;
+      total_out: unknown;
+      current_stock: unknown;
+      total_in_berat_kg: unknown;
+      total_out_berat_kg: unknown;
+      total_berat_kg: unknown;
+    }) => ({
+      meat_type: row.meat_type,
+      total_in: safeNum(row.total_in),
+      total_out: safeNum(row.total_out),
+      current_stock: safeNum(row.current_stock),
+      total_in_berat_kg: parseBeratKg(row.total_in_berat_kg),
+      total_out_berat_kg: parseBeratKg(row.total_out_berat_kg),
+      total_berat_kg: parseBeratKg(row.total_berat_kg),
+    }),
   );
 
-  // ── Agregat dari tabel inventory (stok saat ini) ──────────────────────────
-  let stockDaging = 0; // kresek Sapi + Kambing
-  let stockJeroan = 0; // pcs Hati + Sampil
+  inventorySummary.forEach((row) => {
+    const isDaging = DAGING_TYPES.includes(row.meat_type);
+    const isJeroan = row.meat_type === "Hati + Sampil";
 
-  inventory.forEach((item: { meat_type: string; stock: number }) => {
-    const s = item.stock || 0;
-    if (DAGING_TYPES.includes(item.meat_type)) stockDaging += s;
-    else if (item.meat_type === "Hati + Sampil") stockJeroan += s;
+    if (isDaging) {
+      inputDaging += row.total_in;
+      outputDaging += row.total_out;
+      stockDaging += row.current_stock;
+      inputBeratKg = sumBeratKg(inputBeratKg, row.total_in_berat_kg);
+      outputBeratKg = sumBeratKg(outputBeratKg, row.total_out_berat_kg);
+      stockBeratKg = sumBeratKg(stockBeratKg, row.total_berat_kg);
+    } else if (isJeroan) {
+      inputJeroan += row.total_in;
+      outputJeroan += row.total_out;
+      stockJeroan += row.current_stock;
+    }
 
-    if (meatStats[item.meat_type]) {
-      meatStats[item.meat_type].stock = s;
-    } else {
-      meatStats[item.meat_type] = { in: 0, out: 0, stock: s };
+    if (meatStats[row.meat_type]) {
+      meatStats[row.meat_type] = {
+        in: row.total_in,
+        out: row.total_out,
+        stock: row.current_stock,
+      };
     }
   });
 
-  // Berat (kg) = kresek × 0.5
-  const inputBeratKg = inputDaging * BERAT_PER_KRESEK;
-  const stockBeratKg = stockDaging * BERAT_PER_KRESEK;
-  const outputBeratKg = outputDaging * BERAT_PER_KRESEK;
-
   const meatTypes = ["Sapi", "Kambing", "Hati + Sampil"];
+
+  const beratStockByType = Object.fromEntries(
+    inventorySummary.map((row) => [row.meat_type, row.total_berat_kg]),
+  ) as Record<string, number | null>;
 
   // Nilai progres
   const mTotal = mudhohiTotal ?? 0;
@@ -492,15 +523,27 @@ export default async function DashboardPage() {
                       {isPcs ? "Hati + Sampil" : `Daging ${type}`}
                     </h3>
                   </div>
-                  <span
-                    className="text-xl sm:text-2xl font-bold text-slate-900 shrink-0"
-                    suppressHydrationWarning
-                  >
-                    {stats.stock.toLocaleString("id-ID")}
-                    <span className="text-sm font-normal text-slate-400 ml-1">
-                      {mainUnit}
+                  <div className="flex flex-col items-end shrink-0">
+                    <span
+                      className="text-xl sm:text-2xl font-bold text-slate-900"
+                      suppressHydrationWarning
+                    >
+                      {stats.stock.toLocaleString("id-ID")}
+                      <span className="text-sm font-normal text-slate-400 ml-1">
+                        {mainUnit}
+                      </span>
                     </span>
-                  </span>
+                    {beratStockByType[type] !== null &&
+                      beratStockByType[type] !== undefined && (
+                        <span className="text-xs text-slate-500 font-normal mt-0.5">
+                          {beratStockByType[type]!.toLocaleString("id-ID", {
+                            maximumFractionDigits: 2,
+                            minimumFractionDigits: 0,
+                          })}{" "}
+                          kg
+                        </span>
+                      )}
+                  </div>
                 </div>
 
                 {/* Mini progress sisa stok */}
